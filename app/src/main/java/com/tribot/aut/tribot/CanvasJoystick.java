@@ -72,14 +72,20 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
             canvas.drawBitmap(blueJoystick, (points[0].x - (blueJoystick.getWidth() / 2)),
                     (points[0].y - (blueJoystick.getHeight() / 2)), null);
         }
+        //Draw Joystick at origin of Circle
+        else{
+            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2), null);
+        }
+       
         if(isPushedDown[1]){
             canvas.drawBitmap(blueJoystick, (points[1].x - (blueJoystick.getWidth() / 2)),
                     (points[1].y - (blueJoystick.getHeight() / 2)), null);
-        }if(isPushedDown[0]==false){
-            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2), null);
-        }if(isPushedDown[1]==false){
+        }else{
             canvas.drawBitmap(blueJoystick, JOYSTICK_RADIUS- (blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS- (blueJoystick.getHeight()/2), null);
+
         }
+
+
     }
 
     public void calculateArc(){
