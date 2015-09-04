@@ -78,6 +78,11 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
         }
     }
 
+    public void calculateArc(){
+
+
+    }
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         //Go through all the touch events i.e. pointers, setting @isPushedDown[i] to false or true
