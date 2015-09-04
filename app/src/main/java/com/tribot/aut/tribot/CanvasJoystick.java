@@ -79,6 +79,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
     }
 
     public void calculateArc(){
+        double x,y;
 
 
     }
