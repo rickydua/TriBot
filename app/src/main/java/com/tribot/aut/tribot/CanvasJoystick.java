@@ -10,18 +10,20 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
-/**
- * Created by Ricky on 3/09/2015.
- */
+
 public class CanvasJoystick extends View implements View.OnTouchListener{
     Paint paint;
     boolean isPushedDown[];
     Bitmap blueJoystick;
     Point[] points;
+    float x,y,c,angle;
+
+
     public static final int JOYSTICK_RADIUS = 255;
 
     public CanvasJoystick(Context context) {
@@ -53,6 +55,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
         points = new Point[2];
         points[0] = new Point();
         points[1]=new Point();
+
     }
 
     @Override
@@ -67,30 +70,72 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
         paint.setColor(Color.WHITE);
         canvas.drawLine(canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight(), paint);
 
-        //If any touch event occurred, draw a corresponding joystick.
+        //If any touch event occurs, draw a corresponding joystick.
         if(isPushedDown[0]){
-            canvas.drawBitmap(blueJoystick, (points[0].x - (blueJoystick.getWidth() / 2)),
-                    (points[0].y - (blueJoystick.getHeight() / 2)), null);
+            //call calculateArc to calculate points to limit the joystick
+            calculateArc(JOYSTICK_RADIUS- (blueJoystick.getWidth()/2), canvas.getHeight() - JOYSTICK_RADIUS- (blueJoystick.getHeight()/2),
+
+
+                (points[0].x - (blueJoystick.getWidth() / 2)), (points[0].y - (blueJoystick.getHeight() / 2)));
+
+            canvas.drawBitmap(blueJoystick, x, y, null);
+
         }
-        //Draw Joystick at origin of Circle
+        //Draw Joystick at centre of Circle
         else{
-            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2), null);
-        }
-       
-        if(isPushedDown[1]){
-            canvas.drawBitmap(blueJoystick, (points[1].x - (blueJoystick.getWidth() / 2)),
-                    (points[1].y - (blueJoystick.getHeight() / 2)), null);
-        }else{
             canvas.drawBitmap(blueJoystick, JOYSTICK_RADIUS- (blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS- (blueJoystick.getHeight()/2), null);
+            }
+        if(isPushedDown[1]){
+
+            calculateArc(canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2),
+                    (points[1].x - (blueJoystick.getWidth() / 2)),
+                    (points[1].y - (blueJoystick.getHeight() / 2)));
+
+            canvas.drawBitmap(blueJoystick, x, y, null);
+        }else{
+            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2), null);
 
         }
 
 
     }
 
-    public void calculateArc(){
-        double x,y;
+    //This method calculates the values in an arc, with the centre of the arc at xcentre/ycentre
+    //and x1 and y1 are the values to be calculated
+    public void calculateArc(float xcentre, float ycentre, float x1, float y1){
+        x = x1 - xcentre;
+        y = y1 - ycentre;
+        //Calculate angle by using Trigonometry and hypotenuse by using Pythagoras' theorem
+        angle = (float) Math.atan(Math.abs(y / x));
+        c = FloatMath.sqrt(x*x+y*y);
 
+        //If the length of the hyp is greater than the radius of the joystick then limit the joystick
+        if(c>JOYSTICK_RADIUS){
+
+            //This code will limit the joystick according to the corresponding quadrants in the circle.
+            if(x>0 && y>0) {//bottom right limitation
+                x1 = (xcentre + (JOYSTICK_RADIUS * FloatMath.cos(angle)));
+                y1 = (ycentre + (JOYSTICK_RADIUS * FloatMath.sin(angle)));
+            }else if(x>0 && y<0){//top right limitation
+                x1 = (xcentre + (JOYSTICK_RADIUS * FloatMath.cos(angle)));
+                y1 = (ycentre - (JOYSTICK_RADIUS * FloatMath.sin(angle)));
+            }else if(x<0 && y< 0){//top left limitation
+                x1 = (xcentre - (JOYSTICK_RADIUS * FloatMath.cos(angle)));
+                y1 = (ycentre - (JOYSTICK_RADIUS * FloatMath.sin(angle)));
+            }else if(x<0 && y>0){//bottom left limitation
+                x1 = (xcentre - (JOYSTICK_RADIUS * FloatMath.cos(angle)));
+                y1 = (ycentre + (JOYSTICK_RADIUS * FloatMath.sin(angle)));
+            }
+
+        }
+        else{
+            x1 = xcentre + x;
+            y1 = ycentre + y;
+        }
+
+        x=x1;
+        y=y1;
 
     }
 
