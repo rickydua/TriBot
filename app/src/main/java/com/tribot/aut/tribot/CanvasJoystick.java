@@ -18,10 +18,11 @@ import android.view.View;
 
 public class CanvasJoystick extends View implements View.OnTouchListener{
     Paint paint;
-    boolean isPushedDown[];
+    boolean isPushedDown[], positiveY,positiveX;
     Bitmap blueJoystick;
     Point[] points;
     float x,y,c,angle;
+    String position = "";
 
 
     public static final int JOYSTICK_RADIUS = 255;
@@ -69,37 +70,51 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
         canvas.drawCircle(JOYSTICK_RADIUS, canvas.getHeight() - JOYSTICK_RADIUS, JOYSTICK_RADIUS, paint);
         paint.setColor(Color.WHITE);
         canvas.drawLine(canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight(), paint);
+        paint.setTextSize(20);
+        //draw text for debugging
+        canvas.drawText("x1 :"+ points[0].x,10,20, paint);
+        canvas.drawText("y1 :"+ points[0].y,10,40,paint);
+        canvas.drawText("x2 :"+ points[1].x,10,60,paint);
+        canvas.drawText("y2 :"+ points[1].y,10,80,paint);
+        canvas.drawText("angle"+ angle,10,100,paint);
+        canvas.drawText("hyp"+c,10,120,paint);
+        canvas.drawText("positiveX: "+positiveX+" positiveY "+positiveY,10,140,paint);
+        canvas.drawText("position: "+position,10,160,paint);
+
 
         //If any touch event occurs, draw a corresponding joystick.
-        if(isPushedDown[0]){
+        //***Left Joystick***
+        if (isPushedDown[0]) {
             //call calculateArc to calculate points to limit the joystick
-            calculateArc(JOYSTICK_RADIUS- (blueJoystick.getWidth()/2), canvas.getHeight() - JOYSTICK_RADIUS- (blueJoystick.getHeight()/2),
+            calculateArc(JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2), canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
 
 
-                (points[0].x - (blueJoystick.getWidth() / 2)), (points[0].y - (blueJoystick.getHeight() / 2)));
+                    (points[0].x - (blueJoystick.getWidth() / 2)), (points[0].y - (blueJoystick.getHeight() / 2)));
 
             canvas.drawBitmap(blueJoystick, x, y, null);
 
         }
         //Draw Joystick at centre of Circle
-        else{
-            canvas.drawBitmap(blueJoystick, JOYSTICK_RADIUS- (blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS- (blueJoystick.getHeight()/2), null);
-            }
-        if(isPushedDown[1]){
+        else {
+            canvas.drawBitmap(blueJoystick, JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2), canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2), null);
+        }
 
-            calculateArc(canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),
-                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2),
+        //***Right Joystick***
+        if (isPushedDown[1]) {
+
+            calculateArc(canvas.getWidth() - JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
                     (points[1].x - (blueJoystick.getWidth() / 2)),
                     (points[1].y - (blueJoystick.getHeight() / 2)));
 
             canvas.drawBitmap(blueJoystick, x, y, null);
-        }else{
-            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS -(blueJoystick.getWidth()/2),canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight()/2), null);
-
+        } else {
+            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2), canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2), null);
         }
-
-
     }
+
+
+
 
     //This method calculates the values in an arc, with the centre of the arc at xcentre/ycentre
     //and x1 and y1 are the values to be calculated
@@ -109,6 +124,22 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
         //Calculate angle by using Trigonometry and hypotenuse by using Pythagoras' theorem
         angle = (float) Math.atan(Math.abs(y / x));
         c = FloatMath.sqrt(x*x+y*y);
+        //Figure out whether the x and y are positive or negative
+        if(y<0){
+            positiveY =true;
+        }else{
+            positiveY =false;
+        }if(x>0){
+            positiveX = true;
+        }else{
+            positiveX = false;
+        }
+
+
+        getDirection(angle);
+
+
+        System.out.println("angle: " + angle + " hypotenuse: " + c + " positiveY: " + positiveY + "  " + y + "position: " + position);
 
         //If the length of the hyp is greater than the radius of the joystick then limit the joystick
         if(c>JOYSTICK_RADIUS){
@@ -136,6 +167,21 @@ public class CanvasJoystick extends View implements View.OnTouchListener{
 
         x=x1;
         y=y1;
+
+    }
+
+
+    public void getDirection(float angle){
+        if(positiveY ==true && angle >=0.8){
+            position= "UP";
+        }else if(positiveY ==false && angle >=0.8){
+            position= "DOWN";
+        }else if(positiveX == false && angle<=0.8){
+            position= "LEFT";
+        }else if(positiveX == true && angle<=0.8){
+            position= "RIGHT";
+        }
+
 
     }
 
