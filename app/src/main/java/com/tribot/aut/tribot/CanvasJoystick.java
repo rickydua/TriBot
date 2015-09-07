@@ -21,7 +21,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
     boolean isPushedDown[], positiveY, positiveX;
     Bitmap blueJoystick;
     Point[] points;
-    float x, y, c, angle;
+    float x, y, c, angle, degrees;
     String position = "";
 
 
@@ -61,19 +61,13 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        int pwmValue= 0;
-        int cx = JOYSTICK_RADIUS;
-        int cy = canvas.getHeight()-JOYSTICK_RADIUS;
-
-        int cx2 = canvas.getWidth() - JOYSTICK_RADIUS;
-        int cy2 = canvas.getHeight() - JOYSTICK_RADIUS;
         super.onDraw(canvas);
         canvas.drawColor(Color.BLACK);
         paint.setColor(Color.rgb(115, 215, 234));
 
         //Draw two Circles, used for restricting joystick to a certain distance from the radius of the circle.
-        canvas.drawCircle(cx, cy, JOYSTICK_RADIUS, paint);
-        canvas.drawCircle(cx2, cy2, JOYSTICK_RADIUS, paint);
+        canvas.drawCircle(canvas.getWidth() - JOYSTICK_RADIUS, canvas.getHeight() - JOYSTICK_RADIUS, JOYSTICK_RADIUS, paint);
+        canvas.drawCircle(JOYSTICK_RADIUS, canvas.getHeight() - JOYSTICK_RADIUS, JOYSTICK_RADIUS, paint);
         paint.setColor(Color.WHITE);
         canvas.drawLine(canvas.getWidth() / 2, 0, canvas.getWidth() / 2, canvas.getHeight(), paint);
         paint.setTextSize(20);
@@ -86,26 +80,40 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         canvas.drawText("hyp" + c, 10, 120, paint);
         canvas.drawText("positiveX: " + positiveX + " positiveY " + positiveY, 10, 140, paint);
         canvas.drawText("position: " + position, 10, 160, paint);
+        canvas.drawText("angle *" + degrees, 10, 180, paint);
 
 
         //If any touch event occurs, draw a corresponding joystick.
-        //***Left Joystick***
-        if (isPushedDown[0]) {
+        //***If screen is touched on Right Joystick first***
+        if (isPushedDown[0] && points[0].x < canvas.getWidth()/2) {
             //call calculateArc to calculate points to limit the joystick
-            calculateArc(JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2), canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
+            calculateArc(JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
+                    (points[0].x - (blueJoystick.getWidth() / 2)),
+                    (points[0].y - (blueJoystick.getHeight() / 2)));
 
+            canvas.drawBitmap(blueJoystick, x, y, null);
 
-                    (points[0].x - (blueJoystick.getWidth() / 2)), (points[0].y - (blueJoystick.getHeight() / 2)));
+        }//Draw Joystick at centre of Circle
+        else{
+            canvas.drawBitmap(blueJoystick, JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2), null);
+        }
+
+        //***Left Joystick drawn if left joystick is touched first***
+        if (isPushedDown[0] && points[0].x > canvas.getWidth() / 2) {
+            calculateArc(canvas.getWidth() - JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
+                    (points[0].x - (blueJoystick.getWidth() / 2)),
+                    (points[0].y - (blueJoystick.getHeight() / 2)));
 
             canvas.drawBitmap(blueJoystick, x, y, null);
 
         }
-        else {
-            canvas.drawBitmap(blueJoystick, JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2), canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2), null);
-        }
+        //****************************************
 
-        //***Right Joystick***
-        if (isPushedDown[1]) {
+        //***Right Joystick if Right joystick is touched second
+        if (isPushedDown[1] && points[1].x > canvas.getWidth()/2) {
 
             calculateArc(canvas.getWidth() - JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
                     canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
@@ -113,11 +121,25 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
                     (points[1].y - (blueJoystick.getHeight() / 2)));
 
             canvas.drawBitmap(blueJoystick, x, y, null);
-        } else {
-            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2), canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2), null);
+        }else {
+            canvas.drawBitmap(blueJoystick, canvas.getWidth() - JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2), null);
         }
-        pwmValue = Math.abs((int)Math.sqrt(Math.pow(points[0].x-cx,2)+Math.pow(points[0].y-cy,2)));
-        System.out.println(pwmValue);
+        //***Left Joystick if Left joystick is touched second***
+        if(isPushedDown[1]&& points[1].x < canvas.getWidth()/2){
+            //call calculateArc to calculate points to limit the joystick
+            calculateArc(JOYSTICK_RADIUS - (blueJoystick.getWidth() / 2),
+                    canvas.getHeight() - JOYSTICK_RADIUS - (blueJoystick.getHeight() / 2),
+                    (points[1].x - (blueJoystick.getWidth() / 2)),
+                    (points[1].y - (blueJoystick.getHeight() / 2)));
+
+            canvas.drawBitmap(blueJoystick, x, y, null);
+
+        }
+        //****************************************
+
+
+
     }
 
 
@@ -128,10 +150,20 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         y = y1 - ycentre;
         //Calculate angle by using Trigonometry and hypotenuse by using Pythagoras' theorem
         angle = (float) Math.atan(Math.abs(y / x));
+        degrees = (float) (angle*(180/Math.PI));
+
         c = FloatMath.sqrt(x * x + y * y);
         //Figure out whether the x and y are positive or negative
-        positiveY = y < 0;
-        positiveX = x > 0;
+
+        if (x > 0) {
+            positiveX = true;
+        } else {
+            positiveX = false;
+        }if (y < 0) {
+            positiveY = true;
+        } else {
+            positiveY = false;
+        }
 
         getDirection(angle);
 
@@ -170,7 +202,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         //get the 4 cardinal points of the joystick
         if (positiveY == true && angle >= 1.047) {
             position = "UP";
-        } else if (!positiveY && angle >= 1.047) {
+        } else if (positiveY == false && angle >= 1.047) {
             position = "DOWN";
         } else if (positiveX == false && angle <= 0.523) {
             position = "LEFT";
@@ -187,6 +219,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         } else if ((positiveX == false && positiveY == false) && (angle <= 1.047 && angle >= 0.523)) {
             position = "DOWN & LEFT";
         }
+
     }
 
     @Override
