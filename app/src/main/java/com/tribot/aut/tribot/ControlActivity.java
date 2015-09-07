@@ -11,7 +11,6 @@ public class ControlActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_control);
-        System.out.println(new Scan().getGattProfile());
     }
 
     @Override
