@@ -9,8 +9,9 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,11 +21,20 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.thalmic.myo.AbstractDeviceListener;
+import com.thalmic.myo.DeviceListener;
+import com.thalmic.myo.Hub;
+import com.thalmic.myo.Myo;
+import com.thalmic.myo.Pose;
+import com.thalmic.myo.scanner.ScanActivity;
+
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class Scan extends AppCompatActivity {
 
     private static final String TAB = "\t\t\t\t";
+    private static final String TAG = "autMyo";
     private BluetoothAdapter bluetoothAdapter;
     private ArrayList<BluetoothDevice> bluetoothDevices;
     private ArrayAdapter<String> listViewArray;
@@ -144,7 +154,51 @@ public class Scan extends AppCompatActivity {
             return true;
         }
 
+        if(id == R.id.action_connectMyo){
+            connectMyo();
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    public void connectMyo(){
+        Hub hub = Hub.getInstance();
+        if (!hub.init(this)) {
+            Log.e(TAG, "Could not initialize the Hub.");
+            finish();
+        }
+
+        Intent intent = new Intent(this, ScanActivity.class);
+        startActivity(intent);
+
+        DeviceListener mListener = new AbstractDeviceListener() {
+            @Override
+            public void onConnect(Myo myo, long timestamp) {
+                Toast.makeText(Scan.this, "Myo Connected!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onDisconnect(Myo myo, long timestamp) {
+                Toast.makeText(Scan.this, "Myo Disconnected!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onPose(Myo myo, long timestamp, Pose pose) {
+               BluetoothGattCharacteristic blunoReadWrite = gattProfile.getServices().get(3).getCharacteristics().get(0);
+                Toast.makeText(Scan.this, "Pose: " + pose, Toast.LENGTH_SHORT).show();
+                if(pose.toString().equals("FIST")){
+                    System.out.println("fist");
+                    blunoReadWrite.setValue("A".getBytes());
+                    gattProfile.writeCharacteristic(blunoReadWrite);
+                }
+                else if (pose.toString().equals("FINGERS_SPREAD")){
+                    System.out.println("anything else");
+                    blunoReadWrite.setValue("B".getBytes());
+                    gattProfile.writeCharacteristic(blunoReadWrite);
+                }
+            }
+        };
+        Hub.getInstance().addListener(mListener);
     }
 
 
