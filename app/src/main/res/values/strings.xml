@@ -6,4 +6,6 @@
     <string name="error_bluetooth_not_supported">Sorry, Bluetooth is not supported for this device.</string>
     <string name="devicesFound">Avaliable Devices</string>
     <string name="title_activity_control">ControlActivity</string>
+    <string name="myoConnect">Connect to Myo</string>
+    <string name="rescan">Rescan</string>
 </resources>

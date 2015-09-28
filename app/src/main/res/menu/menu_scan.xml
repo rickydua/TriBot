@@ -6,6 +6,11 @@
 
     <item android:id="@+id/action_connectMyo"
         android:icon="@drawable/connectmyo"
-        android:title="Connect to Myo"
+        android:title="@string/myoConnect"
         app:showAsAction="ifRoom"/>
+
+    <item android:id="@+id/action_rescan"
+        android:icon="@drawable/rescanwhite"
+        android:title="@string/rescan"
+        app:showAsAction="ifRoom" />
 </menu>

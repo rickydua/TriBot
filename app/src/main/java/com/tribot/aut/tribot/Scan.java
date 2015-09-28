@@ -154,8 +154,12 @@ public class Scan extends AppCompatActivity {
             return true;
         }
 
-        if(id == R.id.action_connectMyo){
+        else if(id == R.id.action_connectMyo){
             connectMyo();
+        }else if(id == R.id.action_rescan){
+            listViewArray.clear();
+            bluetoothDevices.clear();
+            initScan();
         }
 
         return super.onOptionsItemSelected(item);
