@@ -22,12 +22,14 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         <activity
             android:name=".ControlActivity"
             android:label="@string/title_activity_control"
             android:screenOrientation="landscape"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen">
+
 
         </activity>
     </application>

@@ -188,17 +188,17 @@ public class Scan extends AppCompatActivity {
 
             @Override
             public void onPose(Myo myo, long timestamp, Pose pose) {
-               BluetoothGattCharacteristic blunoReadWrite = gattProfile.getServices().get(3).getCharacteristics().get(0);
+              // BluetoothGattCharacteristic blunoReadWrite = gattProfile.getServices().get(3).getCharacteristics().get(0);
                 Toast.makeText(Scan.this, "Pose: " + pose, Toast.LENGTH_SHORT).show();
                 if(pose.toString().equals("FIST")){
                     System.out.println("fist");
-                    blunoReadWrite.setValue("A".getBytes());
-                    gattProfile.writeCharacteristic(blunoReadWrite);
+                    /*blunoReadWrite.setValue("A".getBytes());
+                    gattProfile.writeCharacteristic(blunoReadWrite);*/
                 }
                 else if (pose.toString().equals("FINGERS_SPREAD")){
                     System.out.println("anything else");
-                    blunoReadWrite.setValue("B".getBytes());
-                    gattProfile.writeCharacteristic(blunoReadWrite);
+                    /*blunoReadWrite.setValue("B".getBytes());
+                    gattProfile.writeCharacteristic(blunoReadWrite);*/
                 }
             }
         };
