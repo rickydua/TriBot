@@ -96,14 +96,19 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         //call calculateArc to calculate points to limit the joystick
         if (isPushedDown[0]) {
            // if (points[0].x < centerX + (JOYSTICK_RADIUS+extraSpace) && points[0].y > centerY - (JOYSTICK_RADIUS+extraSpace)) {
-                points[0] = calculateArc(centerX, centerY, points[0].x, points[0].y);
+                //points[0] = calculateArc(centerX, centerY, points[0].x, points[0].y);
+                 points[0] = calculateArc(centerX, centerY, points[0].x, points[0].y);
                 canvas.drawBitmap(blueJoystick, points[0].x - (blueJoystick.getWidth() / 2), points[0].y - (blueJoystick.getHeight() / 2), null);
             move(centerX, centerY, points[0].x, points[0].y);
            /* } else
                 canvas.drawBitmap(blueJoystick, centerX - (blueJoystick.getWidth() / 2), centerY - (blueJoystick.getHeight() / 2), null);*/
         }
         else
+        {
+            move(0,0,0,0);
             canvas.drawBitmap(blueJoystick, ((float)centerX) - (blueJoystick.getWidth() / 2), ((float)centerY) - (blueJoystick.getHeight() / 2), null);
+
+        }
 
         if (isPushedDown[1]) {
             //if(points[1].x > centerX2 - (JOYSTICK_RADIUS+extraSpace) && points[1].y > centerY2 - (JOYSTICK_RADIUS+extraSpace)) {
@@ -154,50 +159,94 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
 
         return new Point((int)x1,(int)y1);
     }
+    /*
+    public void move(double xcentre, double ycentre,double x, double y){
+
+        double finalX = x-xcentre;
+        double finalY = y-ycentre;
+
+        int pwmValue =  Math.abs((int) Math.sqrt(Math.pow(finalX, 2) + Math.pow(finalY, 2)));
+        double direction =  Math.atan(Math.abs(finalY / finalX));
+        double vx =  (Math.cos(direction))*pwmValue;
+        double vy =  (Math.sin(direction) * pwmValue);
+
+        int w1 = (int) vx;
+        int w2 = (int) ((0.5 * vx) - (Math.sqrt(3.0/2.0) * vy));
+        int w3 = (int) ((0.5 * vx) + (Math.sqrt(3.0/2.0) * vy));
+
+
+        BluetoothGattCharacteristic blunoReadWrite = bluetoothGatt.getServices().get(3).getCharacteristics().get(0);
+        blunoReadWrite.setValue(w1 + "|" + w2 + "|" + w3);
+        bluetoothGatt.writeCharacteristic(blunoReadWrite);
+
+        System.out.println(direction + " direction");
+        //System.out.println(w1+"|"+w2+"|"+w3+"|");
+    }*/
 
     public void move(double xcentre, double ycentre,double x, double y){
 
         double finalX = x-xcentre;
         double finalY = y-ycentre;
 
-        int pwmValue = 255;/* Math.abs((int) Math.sqrt(Math.pow(finalX, 2) + Math.pow(finalY, 2)));*/
-        double direction = -1.5708;/*=  Math.atan(Math.abs(finalY / finalX))* (180/Math.PI);*/
+        positiveY = finalY < 0;
+        positiveX = finalX > 0;
+
+        int pwmValue =  Math.abs((int) Math.sqrt(Math.pow(finalX, 2) + Math.pow(finalY, 2)));
+        double direction =  Math.atan(Math.abs(finalY / finalX));
         double vx =  (Math.cos(direction))*pwmValue;
         double vy =  (Math.sin(direction) * pwmValue);
 
+
+
+
+        /*int w2 = (int) (pwmValue * Math.sin((Math.PI - ((Math.sqrt(3.0)/2.0) + direction))));
+        int w1 = (int) (pwmValue * Math.sin(direction));
+        int w3 = (int) (-pwmValue * Math.cos(((Math.sqrt(3.0)/2.0) - (Math.PI/2.0 + direction))));*/
         int w1 = (int) -vx;
-        int w2 = (int) ((0.5 * vx) - (Math.sqrt(3.0/2.0) * vy));
-        int w3 = (int) ((0.5 * vx) + (Math.sqrt(3.0/2.0) * vy));
+        int w2 = (int) ((0.5 * vx) - ((Math.sqrt(3.0)/2.0) * vy));
+        int w3 = (int) ((0.5 * vx) + ((Math.sqrt(3.0)/2.0) * vy));
+        if(!positiveX&&!positiveY){
+            w1 = w1*-1;
+            w2 = w2*-1;
+            w3 = w3*-1;
+        }
+
+
 
 
         BluetoothGattCharacteristic blunoReadWrite = bluetoothGatt.getServices().get(3).getCharacteristics().get(0);
-        blunoReadWrite.setValue(Math.abs(w1) + "|" + Math.abs(w2) + "|" + Math.abs(w3)+"/");
+        blunoReadWrite.setValue("|"+w1 + "|" + w2 + "|" + w3);
         bluetoothGatt.writeCharacteristic(blunoReadWrite);
 
-        System.out.println(Math.abs(w1)+"|"+Math.abs(w2)+"|"+Math.abs(w3));
+        //System.out.println(direction + " direction");
+        //System.out.println(w1+"|"+w2+"|"+w3+"|");
     }
+
+
+
+
 
     //This method will get the direction of the joystick by using the angle in radiansdded
     // and whether the values are positive and negative
-    public void getDirection(float angle) {
+    public void getDirection(float direction) {
         //get the 4 cardinal points of the joystick
-        if (positiveY && angle >= 1.047) {
+        if (positiveY && direction >= 1.047) {
             position = "UP";
-        } else if (!positiveY && angle >= 1.047) {
+        } else if (!positiveY && direction >= 1.047) {
             position = "DOWN";
-        } else if (!positiveX && angle <= 0.523) {
+        } else if (!positiveX && direction <= 0.523) {
             position = "LEFT";
-        } else if (positiveX && angle <= 0.523) {
+        } else if (positiveX && direction <= 0.523) {
             position = "RIGHT";
         }
         //get the 4 other intercardinal points of the joystick
-        else if ((positiveX && positiveY) && (angle <= 1.047 && angle >= 0.523)) {
+        else if ((positiveX && positiveY) && (direction <= 1.047 && direction >= 0.523)) {
             position = "UP & RIGHT";
-        } else if ((!positiveX && positiveY) && (angle <= 1.047 && angle >= 0.523)) {
+        } else if ((!positiveX && positiveY) && (direction <= 1.047 && direction >= 0.523)) {
             position = "UP & LEFT";
-        } else if ((positiveX && !positiveY) && (angle <= 1.047 && angle >= 0.523)) {
+        } else if ((positiveX && !positiveY) && (direction <= 1.047 && direction >= 0.523)) {
             position = "DOWN & RIGHT";
-        } else if ((!positiveX && !positiveY) && (angle <= 1.047 && angle >= 0.523)) {
+        } else if ((!positiveX && !positiveY) && (direction <= 1.047 && direction >= 0.523)) {
             position = "DOWN & LEFT";
         }
     }

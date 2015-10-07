@@ -1,5 +1,6 @@
 package com.tribot.aut.tribot;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -8,6 +9,7 @@ import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -83,10 +85,34 @@ public class Scan extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //obtain selected Bluetooth Device and connect to it.
-                BluetoothDevice currentlySelected = bluetoothDevices.get(position);
+                createDialog(position);
+            }
+        });
+    }
+
+    public void createDialog(final int position1){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+// Add the buttons
+        builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                connectMyo();
+            }
+        });
+        builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                BluetoothDevice currentlySelected = bluetoothDevices.get(position1);
                 gattProfile = currentlySelected.connectGatt(Scan.this, false, new GattCallBack());
             }
         });
+
+
+
+// Create the AlertDialog
+        AlertDialog dialog = builder.create();
+        dialog.setTitle("Would you like to connect to Myo");
+        dialog.show();
+
     }
 
     public void initScan() {
@@ -188,17 +214,29 @@ public class Scan extends AppCompatActivity {
 
             @Override
             public void onPose(Myo myo, long timestamp, Pose pose) {
-              // BluetoothGattCharacteristic blunoReadWrite = gattProfile.getServices().get(3).getCharacteristics().get(0);
+              BluetoothGattCharacteristic blunoReadWrite = gattProfile.getServices().get(3).getCharacteristics().get(0);
                 Toast.makeText(Scan.this, "Pose: " + pose, Toast.LENGTH_SHORT).show();
                 if(pose.toString().equals("FIST")){
-                    System.out.println("fist");
-                    /*blunoReadWrite.setValue("A".getBytes());
-                    gattProfile.writeCharacteristic(blunoReadWrite);*/
+                    System.out.println(pose);
+                    blunoReadWrite.setValue("0|-127|127");
+                    gattProfile.writeCharacteristic(blunoReadWrite);
                 }
-                else if (pose.toString().equals("FINGERS_SPREAD")){
-                    System.out.println("anything else");
-                    /*blunoReadWrite.setValue("B".getBytes());
-                    gattProfile.writeCharacteristic(blunoReadWrite);*/
+
+                if (pose.toString().equals("FINGERS_SPREAD")){
+                    System.out.println(pose);
+                    blunoReadWrite.setValue("0|0|0");
+                    gattProfile.writeCharacteristic(blunoReadWrite);
+                }
+
+                if (pose.toString().equals("WAVE_OUT")){
+                    System.out.println(pose);
+                    blunoReadWrite.setValue("-127|-127|-127");
+                    gattProfile.writeCharacteristic(blunoReadWrite);
+                }
+                if (pose.toString().equals("WAVE_IN")){
+                    System.out.println(pose);
+                    blunoReadWrite.setValue("127|127|127");
+                    gattProfile.writeCharacteristic(blunoReadWrite);
                 }
             }
         };
