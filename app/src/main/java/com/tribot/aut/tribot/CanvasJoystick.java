@@ -16,6 +16,8 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 
 
 public class CanvasJoystick extends View implements View.OnTouchListener {
@@ -52,6 +54,9 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
     }
 
     public void init() {
+
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.customView);
+
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         setOnTouchListener(this);
         isPushedDown = new boolean[2];
@@ -188,31 +193,42 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         double finalX = x-xcentre;
         double finalY = y-ycentre;
 
+        final double RADIANS = 1.5708;
+
         positiveY = finalY < 0;
         positiveX = finalX > 0;
 
         int pwmValue =  Math.abs((int) Math.sqrt(Math.pow(finalX, 2) + Math.pow(finalY, 2)));
         double direction =  Math.atan(Math.abs(finalY / finalX));
+
+        if(!positiveX&&positiveY) {
+            direction = direction * -1;
+        }if(positiveX&&!positiveY){
+            direction = direction*-1;
+        }
+
         double vx =  (Math.cos(direction))*pwmValue;
         double vy =  (Math.sin(direction) * pwmValue);
-
-
-
 
         /*int w2 = (int) (pwmValue * Math.sin((Math.PI - ((Math.sqrt(3.0)/2.0) + direction))));
         int w1 = (int) (pwmValue * Math.sin(direction));
         int w3 = (int) (-pwmValue * Math.cos(((Math.sqrt(3.0)/2.0) - (Math.PI/2.0 + direction))));*/
+
         int w1 = (int) -vx;
         int w2 = (int) ((0.5 * vx) - ((Math.sqrt(3.0)/2.0) * vy));
         int w3 = (int) ((0.5 * vx) + ((Math.sqrt(3.0)/2.0) * vy));
+
         if(!positiveX&&!positiveY){
+            w1 = w1*-1;
+            w2 = w2*-1;
+            w3 = w3*-1;
+        }if(!positiveX&&positiveY){
             w1 = w1*-1;
             w2 = w2*-1;
             w3 = w3*-1;
         }
 
-
-
+        System.out.println(w1 + " " + w2 +" " + " " +w3);
 
         BluetoothGattCharacteristic blunoReadWrite = bluetoothGatt.getServices().get(3).getCharacteristics().get(0);
         blunoReadWrite.setValue("|"+w1 + "|" + w2 + "|" + w3);
@@ -221,9 +237,6 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         //System.out.println(direction + " direction");
         //System.out.println(w1+"|"+w2+"|"+w3+"|");
     }
-
-
-
 
 
     //This method will get the direction of the joystick by using the angle in radiansdded

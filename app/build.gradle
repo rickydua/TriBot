@@ -22,7 +22,7 @@ android {
 dependencies {
     repositories {
         maven {
-            url '.\\myo-android-sdk-0.10.0\\myorepository'
+            url './myo-android-sdk-0.10.0/myorepository'
         }
     }
     compile fileTree(dir: 'libs', include: ['*.jar'])
