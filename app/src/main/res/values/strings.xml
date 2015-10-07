@@ -4,7 +4,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
     <string name="error_bluetooth_not_supported">Sorry, Bluetooth is not supported for this device.</string>
-    <string name="devicesFound">Avaliable Devices</string>
+    <string name="devicesFound">Available Devices</string>
     <string name="title_activity_control">ControlActivity</string>
     <string name="myoConnect">Connect to Myo</string>
     <string name="rescan">Rescan</string>

@@ -16,6 +16,7 @@ import android.util.FloatMath;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 
@@ -54,7 +55,6 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
     }
 
     public void init() {
-
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.customView);
 
         paint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -202,7 +202,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         double direction =  Math.atan(Math.abs(finalY / finalX));
 
         if(!positiveX&&positiveY) {
-            direction = direction * -1;
+            direction = direction*-1;
         }if(positiveX&&!positiveY){
             direction = direction*-1;
         }
@@ -229,6 +229,7 @@ public class CanvasJoystick extends View implements View.OnTouchListener {
         }
 
         System.out.println(w1 + " " + w2 +" " + " " +w3);
+        System.out.print("direction " +direction);
 
         BluetoothGattCharacteristic blunoReadWrite = bluetoothGatt.getServices().get(3).getCharacteristics().get(0);
         blunoReadWrite.setValue("|"+w1 + "|" + w2 + "|" + w3);
